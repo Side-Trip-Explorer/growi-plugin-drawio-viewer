@@ -1,0 +1,2 @@
+node_modules/
+# dist/ はビルド成果物だがGrowi参照のためコミット対象

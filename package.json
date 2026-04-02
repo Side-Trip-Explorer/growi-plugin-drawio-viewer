@@ -1,0 +1,29 @@
+{
+  "name": "growi-plugin-drawio-viewer",
+  "version": "1.0.0",
+  "description": "Growi plugin: renders drawio code blocks natively using draw.io viewer",
+  "type": "module",
+  "keywords": [
+    "growi",
+    "growi-plugin"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit && vite build",
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "@growi/pluginkit": "^1.1.0",
+    "@types/node": "^25.5.0",
+    "@types/react": "^18.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "react": "^18.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
+  },
+  "growiPlugin": {
+    "schemaVersion": "4",
+    "types": [
+      "script"
+    ]
+  }
+}
