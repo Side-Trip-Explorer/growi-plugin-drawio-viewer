@@ -1,39 +1,54 @@
 # growi-plugin-drawio-viewer
 
-Growi スクリプトプラグイン。Markdown の `drawio` コードブロックに書いた draw.io ダイアグラムをネイティブ描画します。
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+[![growi-plugin](https://img.shields.io/badge/growi-plugin-brightgreen.svg)](https://growi.org/plugins)
 
-## 使い方
+A [GROWI](https://github.com/weseek/growi) plugin that renders **draw.io diagrams natively** from `drawio` code blocks in Markdown pages.
 
-Growi のページに以下のように記述するとダイアグラムが表示されます。
+## Demo
+
+Write a `drawio` code block in your GROWI page:
 
 ````markdown
 ```drawio
 <mxfile>
   <diagram name="Page-1">
     <mxGraphModel>
-      ...
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="Hello draw.io"
+          style="rounded=1;fillColor=#e1f5ff;strokeColor=#6c9ebf;"
+          vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="160" height="60" as="geometry"/>
+        </mxCell>
+      </root>
     </mxGraphModel>
   </diagram>
 </mxfile>
 ```
 ````
 
-## 前提条件
+The block is rendered as an interactive draw.io diagram using the GraphViewer library.
 
-- Growi v7 以降
-- draw.io の `viewer.min.js` をローカルで配信する必要があります（下記参照）
+## Requirements
 
-## viewer.min.js のセットアップ
+- GROWI v7 or later
+- `viewer.min.js` must be served locally (see setup below)
 
-このプラグインは `/static/viewer.min.js` からdraw.ioビューワーを読み込みます。  
-nginx などで以下のように配信してください。
+## Setup
+
+### 1. Prepare viewer.min.js
+
+This plugin loads the draw.io viewer library from `/static/viewer.min.js`.  
+Download it and serve it via your web server (e.g. nginx):
 
 ```bash
 curl -L -o nginx/static/viewer.min.js \
   "https://raw.githubusercontent.com/jgraph/drawio/dev/src/main/webapp/js/viewer.min.js"
 ```
 
-nginx 設定例:
+Add a location block to your nginx config:
 
 ```nginx
 location /static/ {
@@ -42,23 +57,39 @@ location /static/ {
 }
 ```
 
-## ローカルデプロイ
+### 2. Deploy the plugin
 
 ```bash
 npm run build
 
-docker exec <growi-container> mkdir -p /opt/growi/apps/app/tmp/plugins/local/growi-plugin-drawio-viewer
-docker cp package.json <growi-container>:/opt/growi/apps/app/tmp/plugins/local/growi-plugin-drawio-viewer/
-docker cp dist <growi-container>:/opt/growi/apps/app/tmp/plugins/local/growi-plugin-drawio-viewer/
+docker exec <growi-container> mkdir -p \
+  /opt/growi/apps/app/tmp/plugins/local/growi-plugin-drawio-viewer
+
+docker cp package.json \
+  <growi-container>:/opt/growi/apps/app/tmp/plugins/local/growi-plugin-drawio-viewer/
+
+docker cp dist \
+  <growi-container>:/opt/growi/apps/app/tmp/plugins/local/growi-plugin-drawio-viewer/
+
 docker restart <growi-container>
 ```
 
-## 技術的な詳細
+## Development
 
-- Growi の `growiFacade.markdownRenderer.optionsGenerators` を使って `components.drawio` を上書き
-- React の dual-instance 問題を回避するため `growiFacade.react` へのプロキシ shim を使用
-- `remark-drawio` が XML を `children` プロップとして渡す仕様に対応
+```bash
+git clone https://github.com/Side-Trip-Explorer/growi-plugin-drawio-viewer.git
+cd growi-plugin-drawio-viewer
+npm install
+npm run build
+```
 
-## ライセンス
+## How it works
 
-MIT
+- Hooks into `growiFacade.markdownRenderer.optionsGenerators` to override the `drawio` component
+- Receives diagram XML via the `children` prop (passed by `@growi/remark-drawio`)
+- Loads `viewer.min.js` once per page and calls `GraphViewer.createViewerForElement()`
+- Uses a React proxy shim (`growiFacade.react`) to avoid the React dual-instance problem
+
+## License
+
+[MIT](LICENSE) © 2026 Side-Trip-Explorer
